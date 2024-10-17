@@ -11,7 +11,6 @@ class GridCell {
     ~isFilled(): boolean
 }
 
-
 class Map {}
 
 class Scenery {}
@@ -61,14 +60,19 @@ class UpdateMessage {
     ~getDuration(): int
 }
 
+class Event {
+
+}
+
 'Extensions
 Building <|-- Library
 Building <|-- Accommodation
 Building <|-- Cafe
 
 'Compositions
-Game --* Grid
-Game --* GameProgression
+Game *-- Grid
+Game *-- BuildingManager
+Game *-- GameProgression
 
 'Associations
 Game -- "0..*" UpdateMessage
@@ -85,6 +89,6 @@ Building - "1" Graphic
 
 'Notes
 note left of BuildingManager: buildLimits could simply \n be decremented each time \n each class of building is\n created. Similarly,\n concurrentConstructionLimit \n can be decremented each \n time a construction is started \n then incremented each time \n a construction is completed.
-note left of Cafe: There will likely be other\nbuildings too!
+note right of Library: There will likely be other\n buildings too!
 
 @enduml

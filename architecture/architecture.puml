@@ -1,0 +1,90 @@
+@startuml
+class Game {
+    -isPaused: boolean
+    -displayMessage(msg: UpdateMessage): void
+}
+
+class Grid {}
+
+class GridCell {
+    -filled: boolean
+    ~isFilled(): boolean
+}
+
+
+class Map {}
+
+class Scenery {}
+
+class GameProgression {
+    totalGameTime: int
+    currentGameTime: int
+    gameFinished(): void
+}
+
+class BuildingManager {
+    buildLimits: int[]
+    concurrentConstructionLimit: int
+}
+
+abstract class Building {
+    -row: int
+    -col: int
+    -constructionTime: int
+    -constructionTimeProgress: int
+    ~getRow(): int
+    ~getCol(): int
+    ~getConstructionTime(): int
+    ~getConstructionProgress(): int
+    ~isLocatable(row: int, col: int)
+}
+
+class Locatable << helper >> {
+    ~isLocatable(building: Building, row: int, col: int)
+}
+
+class Graphic {
+    directory: String
+    filename: String
+    render(): void
+}
+
+class InputHandler {
+    -listen(): void
+    -mouseDown(x: int, y: int)
+}
+
+class UpdateMessage {
+    -message: String
+    -duration: int
+    ~getMessage(): String
+    ~getDuration(): int
+}
+
+'Extensions
+Building <|-- Library
+Building <|-- Accommodation
+Building <|-- Cafe
+
+'Compositions
+Game --* Grid
+Game --* GameProgression
+
+'Associations
+Game -- "0..*" UpdateMessage
+
+Grid -- "1" Map
+Grid -- "1..*" GridCell
+
+Map -- "*" Scenery
+
+Scenery -- "1" Graphic
+
+BuildingManager -- "1..*" Building
+Building - "1" Graphic
+
+'Notes
+note left of BuildingManager: buildLimits could simply \n be decremented each time \n each class of building is\n created. Similarly,\n concurrentConstructionLimit \n can be decremented each \n time a construction is started \n then incremented each time \n a construction is completed.
+note left of Cafe: There will likely be other\nbuildings too!
+
+@enduml

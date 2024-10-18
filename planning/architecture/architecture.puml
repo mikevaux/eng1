@@ -1,0 +1,92 @@
+@startuml
+class Game {
+    displayUpdateMessage()
+    startGame()
+    pauseGame()
+    restartGame()
+    exitGame()
+}
+
+class Grid {}
+
+class GridCell {
+    isFilled()
+}
+
+class Map {}
+
+class Scenery {}
+
+class GameProgressionTracker {
+    displayProgression()
+    gameFinished()
+}
+
+class BuildingManager {
+    buildLimits
+    concurrentConstructionLimit
+}
+
+abstract class Building {
+    position
+    constructionTime
+    constructionTimeProgress
+    getRow()
+    getCol()
+    getConstructionTime()
+    getConstructionProgress()
+    isLocatable(row, col)
+}
+
+class Locatable << helper >> {
+    isLocatable(building, position)
+}
+
+class Graphic {
+    directory
+    filename
+    render()
+}
+
+class InputHandler {
+    listenForInput()
+}
+
+class UpdateMessage {
+    message
+    duration
+    getMessage()
+    getDuration()
+}
+
+class SettingsMenu {
+    showSelf()
+    hideSelf()
+    notifyGame()
+}
+
+'Extensions
+Building <|-- LectureHall
+Building <|-- Accommodation
+Building <|-- Restaurant
+Building <|-- Gym
+
+'Compositions
+Game *-- Grid
+Game *-- BuildingManager
+Game *-- GameProgressionTracker
+Game *-- SettingsMenu
+
+'Associations
+Game "0" -- "0..*" UpdateMessage
+
+Grid "0" -- "1" Map
+Grid "0" -- "1..*" GridCell
+
+Map "0" -- "*" Scenery
+
+Scenery "0" -- "1" Graphic
+
+BuildingManager "0" -- "1..*" Building
+Building "0" - "1" Graphic
+@enduml

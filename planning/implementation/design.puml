@@ -1,3 +1,5 @@
+/'Work in progress!'/
+
 @startuml
 class Game {
     -isPaused: boolean

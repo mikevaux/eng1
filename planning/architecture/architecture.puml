@@ -15,8 +15,6 @@ class GridCell {
 
 class Map {}
 
-class Scenery {}
-
 class GameProgressionTracker {
     displayProgression()
     gameFinished()
@@ -80,12 +78,7 @@ Game *-- SettingsMenu
 'Associations
 Game "0" -- "0..*" UpdateMessage
 
-Grid "0" -- "1" Map
 Grid "0" -- "1..*" GridCell
-
-Map "0" -- "*" Scenery
-
-Scenery "0" -- "1" Graphic
 
 BuildingManager "0" -- "1..*" Building
 Building "0" - "1" Graphic

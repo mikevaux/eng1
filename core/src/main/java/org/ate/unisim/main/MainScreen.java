@@ -9,20 +9,28 @@ import org.ate.unisim.UniSim;
 import org.ate.unisim.menu.MenuScreen;
 
 public class MainScreen implements Screen {
-    final UniSim game;
+    private static MainScreen INSTANCE;
+    private final UniSim game;
 
     Grid grid;
     BuildingManager buildingManager;
     GameProgressionTracker tracker;
 
-    public MainScreen(final UniSim game) {
-        this.game = game;
+    private MainScreen() {
+        this.game = UniSim.getInstance();
 
         grid = new Grid();
         buildingManager = new BuildingManager();
 
         tracker = new GameProgressionTracker();
     }
+
+    public static MainScreen getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new MainScreen();
+        }
+        return INSTANCE;
+    };
 
     @Override
     public void show() {
@@ -38,7 +46,7 @@ public class MainScreen implements Screen {
 
     private void input(float delta) {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new MenuScreen(game, this));
+            game.setScreen(new MenuScreen(true));
         }
     }
 

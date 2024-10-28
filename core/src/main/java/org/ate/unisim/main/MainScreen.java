@@ -24,14 +24,18 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import org.ate.unisim.UniSim;
 import org.ate.unisim.gameover.GameOverScreen;
+import org.ate.unisim.main.buildings.Accommodation;
+import org.ate.unisim.main.buildings.Cafe;
+import org.ate.unisim.main.buildings.Gym;
+import org.ate.unisim.main.buildings.LectureHall;
 import org.ate.unisim.menu.MenuScreen;
 
 public class MainScreen implements Screen {
 
     private static final int WORLD_WIDTH = 80;
     private static final int WORLD_HEIGHT = 60;
-    private static final int TILE_WIDTH = 32;
-    private static final int TILE_HEIGHT = 32;
+    public static final int TILE_WIDTH = 32;
+    public static final int TILE_HEIGHT = 32;
 
     private static MainScreen INSTANCE;
     private final UniSim game;
@@ -46,7 +50,6 @@ public class MainScreen implements Screen {
     TiledMap map;
     TiledMapRenderer mapRenderer;
     TiledMapTileLayer baseLayer;
-    TiledMapTileLayer assetsLayer;
 
     Grid grid;
     BuildingManager buildingManager;
@@ -64,14 +67,12 @@ public class MainScreen implements Screen {
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1/32f);
         MapLayers layers = map.getLayers();
         baseLayer = (TiledMapTileLayer) layers.get(0);
-        layers.add(new TiledMapTileLayer(baseLayer.getWidth(), baseLayer.getHeight(), TILE_WIDTH, TILE_HEIGHT));
-        assetsLayer = (TiledMapTileLayer) layers.get(layers.getCount()-1);
 
         uiViewport = new ScreenViewport();
         font = new BitmapFont();
 
         grid = new Grid();
-        buildingManager = new BuildingManager();
+        buildingManager = new BuildingManager(map);
         tracker = new GameProgressionTracker();
     }
 
@@ -103,22 +104,45 @@ public class MainScreen implements Screen {
     }
 
     private void input(float delta) {
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.P)) {
             game.setScreen(new MenuScreen(true));
             return;
         }
 
-        if (Gdx.input.justTouched()) {
+        if (buildingManager.inBuildMode() && Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            buildingManager.exitBuildMode();
+        }
+
+        if (buildingManager.inBuildMode()) {
             Vector2 vector = new Vector2(Gdx.input.getX(), Gdx.input.getY());
             mapViewport.unproject(vector);
             int cellX = (int) Math.floor(vector.x);
             int cellY = (int) Math.floor(vector.y);
-            System.out.printf("Touch event in cell (%d, %d) (at vector (%f, %f))\n", cellX, cellY, vector.x, vector.y);
 
-            TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-            TextureRegion r = new TextureRegion(new Texture("buildings/cafe.png"));
-            cell.setTile(new StaticTiledMapTile(r));
-            assetsLayer.setCell(cellX, cellY, cell);
+            System.out.printf("Cursor is in cell (%d, %d) (at vector (%f, %f))\n", cellX, cellY, vector.x, vector.y);
+            buildingManager.setProposalParameters(cellX, cellY);
+
+            if (buildingManager.proposalPossible()) {
+                buildingManager.displayProposal();
+
+                System.out.println("Buildable there!");
+                if (Gdx.input.justTouched()) {
+                    buildingManager.build();
+                }
+            } else {
+                buildingManager.displayImpossible();
+                System.out.println("Not buildable there!");
+            }
+        } else {
+            if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
+                buildingManager.enterBuildMode(new Accommodation());
+            } else if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
+                buildingManager.enterBuildMode(new Cafe());
+            } else if (Gdx.input.isKeyPressed(Input.Keys.NUM_3)) {
+                buildingManager.enterBuildMode(new Gym());
+            } else if (Gdx.input.isKeyPressed(Input.Keys.NUM_4)) {
+                buildingManager.enterBuildMode(new LectureHall());
+            }
         }
 
         float dist = 0.25f;
@@ -169,6 +193,10 @@ public class MainScreen implements Screen {
         game.batch.begin();
         font.draw(game.batch, "Remaining Time:\n" + tracker.displayRemainingTime(), 5, 42);
         game.batch.end();
+
+        if (buildingManager.inBuildMode()) {
+            buildingManager.clearProposal();
+        }
     }
 
     @Override

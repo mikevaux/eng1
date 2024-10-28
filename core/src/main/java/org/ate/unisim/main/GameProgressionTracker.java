@@ -27,6 +27,10 @@ public class GameProgressionTracker {
         timer.scheduleAtFixedRate(decrement, 0, 1000);
     }
 
+    boolean isGameOver() {
+        return remainingTime == 0;
+    }
+
     String displayRemainingTime() {
         int t = remainingTime;
         int seconds = t % 60;

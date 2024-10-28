@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import org.ate.unisim.UniSim;
+import org.ate.unisim.gameover.GameOverScreen;
 import org.ate.unisim.menu.MenuScreen;
 
 public class MainScreen implements Screen {
@@ -70,9 +71,17 @@ public class MainScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        gameOverCheck();
         input(delta);
         logic(delta);
         draw();
+    }
+
+    private void gameOverCheck() {
+        if (tracker.isGameOver()) {
+            game.setScreen(new GameOverScreen());
+            dispose();
+        }
     }
 
     private void input(float delta) {
@@ -127,5 +136,8 @@ public class MainScreen implements Screen {
     }
 
     @Override
-    public void dispose() {}
+    public void dispose() {
+        // Because this is a singleton, we need to manually clear it
+        INSTANCE = null;
+    }
 }

@@ -8,11 +8,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -40,9 +43,10 @@ public class MainScreen implements Screen {
     BitmapFont font;
     Sprite mapSprite;
 
-    TiledMap tiledMap;
-    TiledMapRenderer tiledMapRenderer;
-    TiledMapTileLayer layer;
+    TiledMap map;
+    TiledMapRenderer mapRenderer;
+    TiledMapTileLayer baseLayer;
+    TiledMapTileLayer assetsLayer;
 
     Grid grid;
     BuildingManager buildingManager;
@@ -53,12 +57,15 @@ public class MainScreen implements Screen {
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
 
-        mapCamera = new OrthographicCamera(TILE_WIDTH * 20, TILE_HEIGHT * 20 * (h/w));
+        mapCamera = new OrthographicCamera(20, 20 * (h/w));
         mapViewport = new ExtendViewport(mapCamera.viewportWidth, mapCamera.viewportHeight, mapCamera);
 
-        tiledMap = new TmxMapLoader().load("map/map.tmx");
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
-        layer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+        map = new TmxMapLoader().load("map/map.tmx");
+        mapRenderer = new OrthogonalTiledMapRenderer(map, 1/32f);
+        MapLayers layers = map.getLayers();
+        baseLayer = (TiledMapTileLayer) layers.get(0);
+        layers.add(new TiledMapTileLayer(baseLayer.getWidth(), baseLayer.getHeight(), TILE_WIDTH, TILE_HEIGHT));
+        assetsLayer = (TiledMapTileLayer) layers.get(layers.getCount()-1);
 
         uiViewport = new ScreenViewport();
         font = new BitmapFont();
@@ -101,7 +108,20 @@ public class MainScreen implements Screen {
             return;
         }
 
-        float dist = TILE_WIDTH / 4f;
+        if (Gdx.input.justTouched()) {
+            Vector2 vector = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+            mapViewport.unproject(vector);
+            int cellX = (int) Math.floor(vector.x);
+            int cellY = (int) Math.floor(vector.y);
+            System.out.printf("Touch event in cell (%d, %d) (at vector (%f, %f))\n", cellX, cellY, vector.x, vector.y);
+
+            TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+            TextureRegion r = new TextureRegion(new Texture("buildings/cafe.png"));
+            cell.setTile(new StaticTiledMapTile(r));
+            assetsLayer.setCell(cellX, cellY, cell);
+        }
+
+        float dist = 0.25f;
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             mapCamera.translate(-dist, 0);
         }
@@ -118,9 +138,9 @@ public class MainScreen implements Screen {
         float effectiveViewportWidth = mapCamera.viewportWidth * mapCamera.zoom;
         float effectiveViewportHeight = mapCamera.viewportHeight * mapCamera.zoom;
         float xMin = effectiveViewportWidth / 2f;
-        float xMax = layer.getWidth() * TILE_WIDTH - effectiveViewportWidth / 2f;
+        float xMax = baseLayer.getWidth() - effectiveViewportWidth / 2f;
         float yMin = effectiveViewportHeight / 2f;
-        float yMax = layer.getHeight() * TILE_HEIGHT - effectiveViewportHeight / 2f;
+        float yMax = baseLayer.getHeight() - effectiveViewportHeight / 2f;
 
         mapCamera.position.x = MathUtils.clamp(mapCamera.position.x, xMin, xMax);
         mapCamera.position.y = MathUtils.clamp(mapCamera.position.y, yMin, yMax);
@@ -138,8 +158,8 @@ public class MainScreen implements Screen {
 
         mapViewport.apply();
 
-        tiledMapRenderer.setView(mapCamera);
-        tiledMapRenderer.render();
+        mapRenderer.setView(mapCamera);
+        mapRenderer.render();
         game.batch.setProjectionMatrix(mapCamera.combined);
         game.batch.begin();
         game.batch.end();
@@ -176,6 +196,7 @@ public class MainScreen implements Screen {
 
     @Override
     public void dispose() {
+        map.dispose();
         // Because this is a singleton, we need to manually clear it
         INSTANCE = null;
     }

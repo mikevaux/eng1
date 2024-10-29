@@ -45,13 +45,11 @@ public class MainScreen implements Screen {
     Viewport uiViewport;
 
     BitmapFont font;
-    Sprite mapSprite;
 
     TiledMap map;
     TiledMapRenderer mapRenderer;
     TiledMapTileLayer baseLayer;
 
-    Grid grid;
     BuildingManager buildingManager;
     GameProgressionTracker tracker;
 
@@ -71,7 +69,6 @@ public class MainScreen implements Screen {
         uiViewport = new ScreenViewport();
         font = new BitmapFont();
 
-        grid = new Grid();
         buildingManager = new BuildingManager(map);
         tracker = new GameProgressionTracker();
     }

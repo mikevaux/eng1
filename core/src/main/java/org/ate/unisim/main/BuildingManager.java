@@ -121,7 +121,6 @@ public class BuildingManager {
         for (int incX = 0; incX < beingBuilt.getRows(); incX++) {
             for (int incY = 0; incY < beingBuilt.getCols(); incY++) {
                 builtOn[proposedCellX+incX][proposedCellY+incY] = true;
-                System.out.printf("Built on (%d, %d)", proposedCellX+incX, proposedCellY+incY);
             }
         }
 

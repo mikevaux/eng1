@@ -45,13 +45,11 @@ public class MainScreen implements Screen {
     Viewport uiViewport;
 
     BitmapFont font;
-    Sprite mapSprite;
 
     TiledMap map;
     TiledMapRenderer mapRenderer;
     TiledMapTileLayer baseLayer;
 
-    Grid grid;
     BuildingManager buildingManager;
     GameProgressionTracker tracker;
 
@@ -71,7 +69,6 @@ public class MainScreen implements Screen {
         uiViewport = new ScreenViewport();
         font = new BitmapFont();
 
-        grid = new Grid();
         buildingManager = new BuildingManager(map);
         tracker = new GameProgressionTracker();
     }
@@ -119,19 +116,16 @@ public class MainScreen implements Screen {
             int cellX = (int) Math.floor(vector.x);
             int cellY = (int) Math.floor(vector.y);
 
-            System.out.printf("Cursor is in cell (%d, %d) (at vector (%f, %f))\n", cellX, cellY, vector.x, vector.y);
             buildingManager.setProposalParameters(cellX, cellY);
 
             if (buildingManager.proposalPossible()) {
                 buildingManager.displayProposal();
 
-                System.out.println("Buildable there!");
                 if (Gdx.input.justTouched()) {
                     buildingManager.build();
                 }
             } else {
                 buildingManager.displayImpossible();
-                System.out.println("Not buildable there!");
             }
         } else {
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {

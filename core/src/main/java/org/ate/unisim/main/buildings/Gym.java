@@ -4,8 +4,8 @@ public class Gym extends Building {
     public Gym() {
         super();
 
-        rows = 3;
-        cols = 2;
+        rows = 14;
+        cols = 8;
         filename = "gym.png";
     }
 }

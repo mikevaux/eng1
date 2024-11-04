@@ -4,8 +4,8 @@ public class LectureHall extends Building {
     public LectureHall() {
         super();
 
-        rows = 4;
-        cols = 4;
+        rows = 9;
+        cols = 12;
         filename = "lecture-hall.png";
     }
 }

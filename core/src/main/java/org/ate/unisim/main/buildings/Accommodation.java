@@ -4,8 +4,8 @@ public class Accommodation extends Building {
     public Accommodation() {
         super();
 
-        rows = 6;
-        cols = 4;
+        rows = 12;
+        cols = 12;
         filename = "accommodation.png";
     }
 }

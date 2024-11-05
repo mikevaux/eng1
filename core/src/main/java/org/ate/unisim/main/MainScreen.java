@@ -48,7 +48,9 @@ public class MainScreen implements Screen {
 
     TiledMap map;
     TiledMapRenderer mapRenderer;
-    TiledMapTileLayer baseLayer;
+
+    int tilesX;
+    int tilesY;
 
     BuildingManager buildingManager;
     GameProgressionTracker tracker;
@@ -64,7 +66,9 @@ public class MainScreen implements Screen {
         map = new TmxMapLoader().load("map/map.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(map, (float) 1/TILE_WIDTH);
         MapLayers layers = map.getLayers();
-        baseLayer = (TiledMapTileLayer) layers.get(0);
+        TiledMapTileLayer bottomLayer = (TiledMapTileLayer) layers.get(0);
+        tilesX = bottomLayer.getWidth();
+        tilesY = bottomLayer.getHeight();
 
         uiViewport = new ScreenViewport();
         font = new BitmapFont();
@@ -156,9 +160,9 @@ public class MainScreen implements Screen {
         float effectiveViewportWidth = mapCamera.viewportWidth * mapCamera.zoom;
         float effectiveViewportHeight = mapCamera.viewportHeight * mapCamera.zoom;
         float xMin = effectiveViewportWidth / 2f;
-        float xMax = baseLayer.getWidth() - effectiveViewportWidth / 2f;
+        float xMax = tilesX - effectiveViewportWidth / 2f;
         float yMin = effectiveViewportHeight / 2f;
-        float yMax = baseLayer.getHeight() - effectiveViewportHeight / 2f;
+        float yMax = tilesY - effectiveViewportHeight / 2f;
 
         mapCamera.position.x = MathUtils.clamp(mapCamera.position.x, xMin, xMax);
         mapCamera.position.y = MathUtils.clamp(mapCamera.position.y, yMin, yMax);

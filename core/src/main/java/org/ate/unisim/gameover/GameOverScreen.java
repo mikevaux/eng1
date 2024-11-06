@@ -7,10 +7,16 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import org.ate.unisim.UniSim;
 
+/**
+ * The Game Over screen.
+ */
 public class GameOverScreen implements Screen {
     private final UniSim game;
     Viewport viewport;
 
+    /**
+     * Creates a new instance of `GameOverScreen`.
+     */
     public GameOverScreen() {
         game = UniSim.getInstance();
         viewport = new ScreenViewport();

@@ -5,17 +5,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -30,6 +26,9 @@ import org.ate.unisim.main.buildings.Gym;
 import org.ate.unisim.main.buildings.LectureHall;
 import org.ate.unisim.menu.MenuScreen;
 
+/**
+ * The main game screen for UniSim.
+ */
 public class MainScreen implements Screen {
 
     private static final int WORLD_WIDTH = 80;
@@ -55,15 +54,21 @@ public class MainScreen implements Screen {
     BuildingManager buildingManager;
     GameProgressionTracker tracker;
 
+    /**
+     * Creates a new instance of MainScreen, and runs various bootstrap mechanisms.
+     * Note that this class uses the Singleton pattern, so this is only used inside `getInstance()`.
+     */
     private MainScreen() {
         this.game = UniSim.getInstance();
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
 
+        // Set the resolution of the camera, and match this in the viewport
         mapCamera = new OrthographicCamera(32, 32 * (h/w));
         mapViewport = new ExtendViewport(mapCamera.viewportWidth, mapCamera.viewportHeight, mapCamera);
 
         map = new TmxMapLoader().load("map/map.tmx");
+        // unitScale is here set to 1 unit per tile, which makes cell calculations much easier
         mapRenderer = new OrthogonalTiledMapRenderer(map, (float) 1/TILE_WIDTH);
         MapLayers layers = map.getLayers();
         TiledMapTileLayer bottomLayer = (TiledMapTileLayer) layers.get(0);
@@ -77,6 +82,11 @@ public class MainScreen implements Screen {
         tracker = new GameProgressionTracker();
     }
 
+    /**
+     * Gets the single instance of MainScreen, creating if needed.
+     *
+     * @return the single instance of MainScreen
+     */
     public static MainScreen getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new MainScreen();
@@ -93,10 +103,13 @@ public class MainScreen implements Screen {
     public void render(float delta) {
         gameOverCheck();
         input(delta);
-        logic(delta);
+        logic();
         draw();
     }
 
+    /**
+     * Checks whether the game is over, and sets the respective screen if so, disposing of this one.
+     */
     private void gameOverCheck() {
         if (tracker.isGameOver()) {
             game.setScreen(new GameOverScreen());
@@ -104,6 +117,11 @@ public class MainScreen implements Screen {
         }
     }
 
+    /**
+     * Handles user input and updates the map / camera accordingly.
+     *
+     * @param delta the time in seconds since the last render
+     */
     private void input(float delta) {
         if (Gdx.input.isKeyPressed(Input.Keys.P)) {
             game.setScreen(new MenuScreen(true));
@@ -169,11 +187,16 @@ public class MainScreen implements Screen {
         mapCamera.update();
     }
 
-
-    private void logic(float delta) {
+    /**
+     * Handles logic, and updates accordingly
+     */
+    private void logic() {
 
     }
 
+    /**
+     * Draws the map and associated UI.
+     */
     private void draw() {
         ScreenUtils.clear(Color.BLACK);
 
@@ -189,7 +212,7 @@ public class MainScreen implements Screen {
         uiViewport.apply();
         game.batch.setProjectionMatrix(uiViewport.getCamera().combined);
         game.batch.begin();
-        font.draw(game.batch, "Remaining Time:\n" + tracker.displayRemainingTime(), 5, 42);
+        font.draw(game.batch, "Remaining Time:\n" + tracker.formatRemainingTime(), 5, 42);
         game.batch.end();
 
         if (buildingManager.inBuildMode()) {

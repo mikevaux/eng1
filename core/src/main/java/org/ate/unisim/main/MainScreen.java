@@ -110,7 +110,7 @@ public class MainScreen implements Screen {
         float h = Gdx.graphics.getHeight();
 
         // Set the resolution of the camera, and match this in the viewport
-        mapCamera = new OrthographicCamera(32, 32 * (h / w));
+        mapCamera = new OrthographicCamera(48, 48 * (h / w));
         mapViewport = new ExtendViewport(mapCamera.viewportWidth, mapCamera.viewportHeight, mapCamera);
 
         map = new TmxMapLoader().load("map/map.tmx");
@@ -333,7 +333,7 @@ public class MainScreen implements Screen {
             }
         }
 
-        float dist = 0.25f;
+        float dist = 32f * delta;
         // movement keys
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
             mapCamera.translate(-dist, 0);

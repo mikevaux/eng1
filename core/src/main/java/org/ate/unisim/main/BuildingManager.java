@@ -20,6 +20,13 @@ import java.util.Map;
  * are built.
  */
 public class BuildingManager {
+
+    // trackers for the number of each building placed
+    private int accommodationsBuilt;
+    private int cafesBuilt;
+    private int gymsBuilt;
+    private int lectureHallsBuilt;
+
     private final static String TILE_PROPERTY_BUILDABLE = "buildable";
 
     private static final int CONCURRENT_CONSTRUCTION_LIMIT = 2;
@@ -34,6 +41,12 @@ public class BuildingManager {
     Building beingBuilt;
     int proposedCellX;
     int proposedCellY;
+
+    //bools used for incrementing building counter
+    boolean accommodation;
+    boolean cafe;
+    boolean gym;
+    boolean lectureHall;
 
     Map<String, Integer> buildLimits;
 
@@ -114,10 +127,37 @@ public class BuildingManager {
      *
      * @param building the building being proposed.
      */
-    public void enterBuildMode(Building building) {
+    public void enterBuildMode(Building building, String buildingName) {
         buildMode = true;
         beingBuilt = building;
         proposalsLayer.setVisible(true);
+        //sets the bool for the building clicked on to true and all others to false
+        switch (buildingName){
+            case "accommodation":
+                accommodation = true;
+                cafe = false;
+                gym = false;
+                lectureHall = false;
+                break;
+            case "cafe":
+                accommodation = false;
+                cafe = true;
+                gym = false;
+                lectureHall = false;
+                break;
+            case "gym":
+                accommodation = false;
+                cafe = false;
+                gym = true;
+                lectureHall = false;
+                break;
+            case "lecture hall":
+                accommodation = false;
+                cafe = false;
+                gym = false;
+                lectureHall = true;
+                break;
+        }
     }
 
     /**
@@ -202,7 +242,34 @@ public class BuildingManager {
                 buildable[proposedCellX+incX][proposedCellY+incY] = false;
             }
         }
+        //updates the building counter in the store menu once the building has been placed
+        if (accommodation){
+            accommodation = false;
+            accommodationsBuilt += 1;
+        }else if (cafe){
+            cafe = false;
+            cafesBuilt += 1;
+        }else if (gym){
+            gym = false;
+            gymsBuilt += 1;
+        }else if (lectureHall){
+            lectureHall = false;
+            lectureHallsBuilt += 1;
+        }
 
         exitBuildMode();
+    }
+
+    public int getAccommodationsBuilt(){
+        return accommodationsBuilt;
+    }
+    public int getCafesBuilt(){
+        return cafesBuilt;
+    }
+    public int getGymsBuilt(){
+        return gymsBuilt;
+    }
+    public int getLectureHallsBuilt(){
+        return lectureHallsBuilt;
     }
 }

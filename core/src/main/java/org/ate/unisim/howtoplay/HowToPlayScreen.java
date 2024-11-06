@@ -2,70 +2,60 @@ package org.ate.unisim.howtoplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import org.ate.unisim.StaticScreen;
 import org.ate.unisim.UniSim;
 import org.ate.unisim.main.MainScreen;
 
 /**
  * The How to Play screen.
  */
-public class HowToPlayScreen implements Screen {
-    private final UniSim game;
+public class HowToPlayScreen extends StaticScreen {
+    /**
+     * Aspect ratio of the "How to Play" image font. This is to resolve an issue with nested tables containing a scaled
+     * image always expanding the nested table to the full height of its parent widget.
+     */
+    private static final float IMAGE_FONT_HTP_ASPECT_RATIO = 333/1796f;
 
     /**
      * Creates a new instance of `HowToPlayScreen`.
      */
     public HowToPlayScreen() {
-        game = UniSim.getInstance();
+        super();
     }
 
     @Override
     public void show() {
+        Image imageFont = getImageFont("how-to-play.png");
+        preserveAspectRatio(imageFont);
+        String instructions = """
+            - Click the 'Store' in the top-left of the map to open the Store.
+            - From here, click any building to build it.
+            - The Store also includes a count of how many of each building has been built.
+            - If you change your mind, press Esc to cancel building.
+            - Press 'p' at any time to pause the game.
+            - Enjoy!""";
+        String startHint = "Press space to start the game...";
+        Label instructionsLabel = new Label(instructions, skin);
+        Label startHintLabel = new Label(startHint, skin, "window");
 
+        contentTable.row().padBottom(48);
+        contentTable.add(imageFont).size(320, 320 * IMAGE_FONT_HTP_ASPECT_RATIO).left();
+        contentTable.add(logo).size(48, 48).top().right();
+        contentTable.row();
+        contentTable.add(instructionsLabel).colspan(2);
+        contentTable.row().padTop(24);
+        contentTable.add(startHintLabel).colspan(2).center();
     }
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.BLACK);
-
-        game.viewport.apply();
-        game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
-
-        game.batch.begin();
-        game.font.draw(game.batch, "How to play...", game.viewport.getWorldWidth()/3, game.viewport.getWorldHeight()/2 + 2);
-        game.font.draw(game.batch, "Press space to start....", game.viewport.getWorldWidth()/3, game.viewport.getWorldHeight()/2);
-        game.batch.end();
+        super.render(delta);
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            game.setScreen(MainScreen.getInstance());
+            UniSim.getInstance().setScreen(MainScreen.getInstance());
             dispose();
         }
-    }
-
-    @Override
-    public void resize(int width, int height) {
-
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
-
-    @Override
-    public void dispose() {
-
     }
 }

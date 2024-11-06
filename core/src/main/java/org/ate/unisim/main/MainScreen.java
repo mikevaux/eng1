@@ -40,8 +40,6 @@ import org.ate.unisim.menu.MenuScreen;
  */
 public class MainScreen implements Screen {
 
-    private static final int WORLD_WIDTH = 80;
-    private static final int WORLD_HEIGHT = 60;
     public static final int TILE_WIDTH = 16;
     public static final int TILE_HEIGHT = 16;
 
@@ -88,9 +86,6 @@ public class MainScreen implements Screen {
     Texture lectureHallTexture;
     TextureRegion lectureHallTextureRegion;
     TextureRegionDrawable lectureHallTexRegionDrawable;
-    Texture backgroundTexture;
-    TextureRegion backgroundTextureRegion;
-    TextureRegionDrawable backgroundTexRegionDrawable;
     Label accommodationNumber;
     Label cafeNumber;
     Label gymNumber;
@@ -258,7 +253,7 @@ public class MainScreen implements Screen {
             INSTANCE = new MainScreen();
         }
         return INSTANCE;
-    };
+    }
 
     @Override
     public void show() {
@@ -269,10 +264,10 @@ public class MainScreen implements Screen {
      * updates the labels to display the current number of each building.
      */
     private void updateLabels(){
-        accommodationNumber.setText(String.valueOf(buildingManager.getAccommodationsBuilt()) + " built");
-        cafeNumber.setText(String.valueOf(buildingManager.getCafesBuilt()) + " built");
-        gymNumber.setText(String.valueOf(buildingManager.getGymsBuilt()) + " built");
-        lectureHallNumber.setText(String.valueOf(buildingManager.getLectureHallsBuilt()) + " built");
+        accommodationNumber.setText(buildingManager.getAccommodationsBuilt() + " built");
+        cafeNumber.setText(buildingManager.getCafesBuilt() + " built");
+        gymNumber.setText(buildingManager.getGymsBuilt() + " built");
+        lectureHallNumber.setText(buildingManager.getLectureHallsBuilt() + " built");
     }
 
     @Override

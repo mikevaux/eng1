@@ -326,16 +326,16 @@ public class MainScreen implements Screen {
 
         float dist = 0.25f;
         // movement keys
-        if ((Gdx.input.isKeyPressed(Input.Keys.LEFT)) | (Gdx.input.isKeyPressed(Input.Keys.A))) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
             mapCamera.translate(-dist, 0);
         }
-        if ((Gdx.input.isKeyPressed(Input.Keys.RIGHT)) | (Gdx.input.isKeyPressed(Input.Keys.D))) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
             mapCamera.translate(dist, 0);
         }
-        if ((Gdx.input.isKeyPressed(Input.Keys.UP)) | (Gdx.input.isKeyPressed(Input.Keys.W))) {
+        if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
             mapCamera.translate(0, dist);
         }
-        if ((Gdx.input.isKeyPressed(Input.Keys.DOWN)) | (Gdx.input.isKeyPressed(Input.Keys.S))) {
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
             mapCamera.translate(0, -dist);
         }
 

@@ -3,7 +3,6 @@ package org.ate.unisim.main;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -32,12 +31,15 @@ import org.ate.unisim.main.buildings.Gym;
 import org.ate.unisim.main.buildings.LectureHall;
 import org.ate.unisim.menu.MenuScreen;
 
+/**
+ * The main game screen for UniSim.
+ */
 public class MainScreen implements Screen {
 
     private static final int WORLD_WIDTH = 80;
     private static final int WORLD_HEIGHT = 60;
-    public static final int TILE_WIDTH = 32;
-    public static final int TILE_HEIGHT = 32;
+    public static final int TILE_WIDTH = 16;
+    public static final int TILE_HEIGHT = 16;
 
     private static MainScreen INSTANCE;
     private final UniSim game;
@@ -50,7 +52,9 @@ public class MainScreen implements Screen {
 
     TiledMap map;
     TiledMapRenderer mapRenderer;
-    TiledMapTileLayer baseLayer;
+
+    int tilesX;
+    int tilesY;
 
     BuildingManager buildingManager;
     GameProgressionTracker tracker;
@@ -92,18 +96,26 @@ public class MainScreen implements Screen {
     // bool storing if the menu is currently showing
     boolean showMenu = false;
 
+    /**
+     * Creates a new instance of MainScreen, and runs various bootstrap mechanisms.
+     * Note that this class uses the Singleton pattern, so this is only used inside `getInstance()`.
+     */
     private MainScreen() {
         this.game = UniSim.getInstance();
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
 
-        mapCamera = new OrthographicCamera(20, 20 * (h / w));
+        // Set the resolution of the camera, and match this in the viewport
+        mapCamera = new OrthographicCamera(32, 32 * (h / w));
         mapViewport = new ExtendViewport(mapCamera.viewportWidth, mapCamera.viewportHeight, mapCamera);
 
         map = new TmxMapLoader().load("map/map.tmx");
-        mapRenderer = new OrthogonalTiledMapRenderer(map, 1 / 32f);
+        // unitScale is here set to 1 unit per tile, which makes cell calculations much easier
+        mapRenderer = new OrthogonalTiledMapRenderer(map, (float)1 / TILE_WIDTH);
         MapLayers layers = map.getLayers();
-        baseLayer = (TiledMapTileLayer) layers.get(0);
+        TiledMapTileLayer bottomLayer = (TiledMapTileLayer) layers.get(0);
+        tilesX = bottomLayer.getWidth();
+        tilesY = bottomLayer.getHeight();
 
         uiViewport = new ScreenViewport();
         font = new BitmapFont();
@@ -232,6 +244,11 @@ public class MainScreen implements Screen {
         });
     }
 
+    /**
+     * Gets the single instance of MainScreen, creating if needed.
+     *
+     * @return the single instance of MainScreen
+     */
     public static MainScreen getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new MainScreen();
@@ -258,10 +275,13 @@ public class MainScreen implements Screen {
     public void render(float delta) {
         gameOverCheck();
         input(delta);
-        logic(delta);
+        logic();
         draw(delta);
     }
 
+    /**
+     * Checks whether the game is over, and sets the respective screen if so, disposing of this one.
+     */
     private void gameOverCheck() {
         if (tracker.isGameOver()) {
             game.setScreen(new GameOverScreen());
@@ -269,6 +289,11 @@ public class MainScreen implements Screen {
         }
     }
 
+    /**
+     * Handles user input and updates the map / camera accordingly.
+     *
+     * @param delta the time in seconds since the last render
+     */
     private void input(float delta) {
         if (Gdx.input.isKeyPressed(Input.Keys.P)) {
             game.setScreen(new MenuScreen(true));
@@ -318,20 +343,25 @@ public class MainScreen implements Screen {
         float effectiveViewportWidth = mapCamera.viewportWidth * mapCamera.zoom;
         float effectiveViewportHeight = mapCamera.viewportHeight * mapCamera.zoom;
         float xMin = effectiveViewportWidth / 2f;
-        float xMax = baseLayer.getWidth() - effectiveViewportWidth / 2f;
+        float xMax = tilesX - effectiveViewportWidth / 2f;
         float yMin = effectiveViewportHeight / 2f;
-        float yMax = baseLayer.getHeight() - effectiveViewportHeight / 2f;
+        float yMax = tilesY - effectiveViewportHeight / 2f;
 
         mapCamera.position.x = MathUtils.clamp(mapCamera.position.x, xMin, xMax);
         mapCamera.position.y = MathUtils.clamp(mapCamera.position.y, yMin, yMax);
         mapCamera.update();
     }
 
-
-    private void logic(float delta) {
+    /**
+     * Handles logic, and updates accordingly
+     */
+    private void logic() {
 
     }
 
+    /**
+     * Draws the map and associated UI.
+     */
     private void draw(float delta) {
         ScreenUtils.clear(Color.BLACK);
 
@@ -347,7 +377,7 @@ public class MainScreen implements Screen {
         uiViewport.apply();
         game.batch.setProjectionMatrix(uiViewport.getCamera().combined);
         game.batch.begin();
-        font.draw(game.batch, "Remaining Time:\n" + tracker.displayRemainingTime(), 5, 42);
+        font.draw(game.batch, "Remaining Time:\n" + tracker.formatRemainingTime(), 5, 42);
         game.batch.end();
 
         if (buildingManager.inBuildMode()) {

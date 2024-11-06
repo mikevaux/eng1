@@ -2,6 +2,7 @@ package org.ate.unisim.main;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -11,6 +12,13 @@ import org.ate.unisim.main.buildings.Building;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Manages the placeable buildings, utilising 2 dynamically created layers for buildings built, and buildings proposed.
+ * Specifically, `BuildingManager` creates one layer on which buildings are built, and one layer on which they are
+ * rendered. It 'flattens' the custom tile property `buildable` across all initial map layers into a single data
+ * structure which holds whether a given cell is buildable on or not, that is then updated accordingly as new buildings
+ * are built.
+ */
 public class BuildingManager {
 
     // trackers for the number of each building placed
@@ -25,11 +33,10 @@ public class BuildingManager {
     private boolean buildMode = false;
 
     TiledMap map;
-    TiledMapTileLayer baseLayer;
     TiledMapTileLayer assetsLayer;
     TiledMapTileLayer proposalsLayer;
 
-    boolean[][] builtOn;
+    boolean[][] buildable;
 
     Building beingBuilt;
     int proposedCellX;
@@ -43,33 +50,83 @@ public class BuildingManager {
 
     Map<String, Integer> buildLimits;
 
-
+    /**
+     * Creates a new `BuildingManager`, running all bootstrap methods which this class needs.
+     *
+     * @param map the tiled map on which the game is played
+     */
     BuildingManager(TiledMap map) {
         this.map = map;
         initLayers();
+        compileBuildable();
 
         buildLimits = new HashMap<>();
     }
 
+    /**
+     * Creates and adds the assets layer and proposals layer.
+     */
     private void initLayers() {
         int tileWidth = MainScreen.TILE_WIDTH;
         int tileHeight = MainScreen.TILE_HEIGHT;
 
         MapLayers layers = map.getLayers();
-        baseLayer = (TiledMapTileLayer) layers.get(0);
-        assetsLayer = new TiledMapTileLayer(baseLayer.getWidth(), baseLayer.getHeight(), tileWidth, tileHeight);
-        proposalsLayer = new TiledMapTileLayer(baseLayer.getWidth(), baseLayer.getHeight(), tileWidth, tileHeight);
+        TiledMapTileLayer bottomLayer = (TiledMapTileLayer) layers.get(0);
+        assetsLayer = new TiledMapTileLayer(bottomLayer.getWidth(), bottomLayer.getHeight(), tileWidth, tileHeight);
+        proposalsLayer = new TiledMapTileLayer(bottomLayer.getWidth(), bottomLayer.getHeight(), tileWidth, tileHeight);
         proposalsLayer.setVisible(false);
         layers.add(assetsLayer);
         layers.add(proposalsLayer);
-
-        builtOn = new boolean[assetsLayer.getWidth()][assetsLayer.getHeight()];
     }
 
+    /**
+     * Compiles the data structure that holds the per-cell boolean value for whether that cell is buildable or not.
+     */
+    private void compileBuildable() {
+        MapLayers layers = map.getLayers();
+        TiledMapTileLayer bottomLayer = (TiledMapTileLayer) layers.get(0);
+        int tilesX = bottomLayer.getWidth();
+        int tilesY = bottomLayer.getHeight();
+
+        buildable = new boolean[tilesX][tilesY];
+
+        for (int x = 0; x < tilesX; x++) {
+            for (int y = 0; y < tilesY; y++) {
+                buildable[x][y] = flattenBuildable(layers, x, y);
+            }
+        }
+    }
+
+    /**
+     * "Flattens" the `buildable` custom property across one or more layers for a given cell (designated by x, y).
+     *
+     * @param layers the map layers
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @return true if this cell is buildable across all layers
+     */
+    private boolean flattenBuildable(MapLayers layers, int x, int y) {
+        for (MapLayer layer : layers) {
+            TiledMapTileLayer.Cell cell = ((TiledMapTileLayer) layer).getCell(x, y);
+            // Check for not null here is because layers > 0 may not have all cells set (i.e. where there is nothing
+            // present in that layer)
+            if (cell != null && !cell.getTile().getProperties().get(TILE_PROPERTY_BUILDABLE, Boolean.class)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Returns true if this is in build mode. */
     public boolean inBuildMode() {
         return buildMode;
     }
 
+    /**
+     * Enters build mode, by setting the boolean flag, and updating some instance members.
+     *
+     * @param building the building being proposed.
+     */
     public void enterBuildMode(Building building, String buildingName) {
         buildMode = true;
         beingBuilt = building;
@@ -103,6 +160,9 @@ public class BuildingManager {
         }
     }
 
+    /**
+     * Exits build mode, by setting the boolean flag, and updating some instance members.
+     */
     public void exitBuildMode() {
         clearProposal();
         proposalsLayer.setVisible(false);
@@ -110,11 +170,22 @@ public class BuildingManager {
         buildMode = false;
     }
 
+    /**
+     * Sets the values for the new proposal, i.e. the proposed origin cell x and y.
+     *
+     * @param cellX proposed origin cell x
+     * @param cellY proposed origin cell y
+     */
     public void setProposalParameters(int cellX, int cellY) {
         proposedCellX = cellX;
         proposedCellY = cellY;
     }
 
+    /**
+     * Determines whether the proposed building is possible to build in the proposed region.
+     *
+     * @return true if the building proposal is possible
+     */
     public boolean proposalPossible() {
         int x, y;
 
@@ -123,13 +194,12 @@ public class BuildingManager {
                 x = proposedCellX+incX;
                 y = proposedCellY+incY;
 
-                // First, check whether this cell exists at all. Then check the property of the respective tile.
-                TiledMapTileLayer.Cell cell = baseLayer.getCell(x, y);
-                if (cell == null || !cell.getTile().getProperties().get(TILE_PROPERTY_BUILDABLE, Boolean.class)) {
+                // First, check whether this tile is actually on our map (i.e. not out of bounds of the layer)
+                if (x < 0 || y < 0 || x >= buildable.length || y >= buildable[0].length) {
                     return false;
                 }
-                // Now check if we have already built on this cell
-                if (builtOn[x][y]) {
+                // Then check whether this tile is buildable
+                if (!buildable[x][y]) {
                     return false;
                 }
             }
@@ -137,6 +207,9 @@ public class BuildingManager {
         return true;
     }
 
+    /**
+     * Displays the current proposal, by dynamically creating a new cell and rendering on the proposals layer.
+     */
     public void displayProposal() {
         TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
         TextureRegion region = new TextureRegion(new Texture(beingBuilt.getAssetPath()));
@@ -148,10 +221,16 @@ public class BuildingManager {
         // TODO Implement this somehow
     }
 
+    /**
+     * Clears the current proposal.
+     */
     public void clearProposal() {
         proposalsLayer.setCell(proposedCellX, proposedCellY, null);
     }
 
+    /**
+     * Builds the proposed building in the proposed region, and updates the `buildable` data structure accordingly.
+     */
     public void build() {
         TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
         TextureRegion region = new TextureRegion(new Texture(beingBuilt.getAssetPath()));
@@ -160,7 +239,7 @@ public class BuildingManager {
 
         for (int incX = 0; incX < beingBuilt.getRows(); incX++) {
             for (int incY = 0; incY < beingBuilt.getCols(); incY++) {
-                builtOn[proposedCellX+incX][proposedCellY+incY] = true;
+                buildable[proposedCellX+incX][proposedCellY+incY] = false;
             }
         }
         //updates the building counter in the store menu once the building has been placed

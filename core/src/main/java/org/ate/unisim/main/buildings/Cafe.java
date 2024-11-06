@@ -1,11 +1,14 @@
 package org.ate.unisim.main.buildings;
 
 public class Cafe extends Building {
+    /**
+     * Creates a new instance of `Cafe`.
+     */
     public Cafe() {
         super();
 
-        rows = 2;
-        cols = 1;
+        rows = 12;
+        cols = 14;
         filename = "cafe.png";
     }
 }

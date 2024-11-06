@@ -9,14 +9,25 @@ import org.ate.unisim.UniSim;
 import org.ate.unisim.howtoplay.HowToPlayScreen;
 import org.ate.unisim.main.MainScreen;
 
+/**
+ * The menu screen, for pre-game and paused states.
+ */
 public class MenuScreen implements Screen {
     private final UniSim game;
-    private boolean gamePaused;
+    private boolean gamePaused = false;
 
+    /**
+     * Creates a new instance of `MenuScreen`
+     */
     public MenuScreen() {
         this.game = UniSim.getInstance();
     }
 
+    /**
+     * Creates a new instance of `MenuScreen`, setting the paused state accordingly.
+     *
+     * @param gamePaused whether the game is currently paused (as opposed to not-yet started)
+     */
     public MenuScreen(boolean gamePaused) {
         this();
         this.gamePaused = gamePaused;

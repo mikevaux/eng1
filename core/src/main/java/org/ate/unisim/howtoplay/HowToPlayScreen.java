@@ -8,9 +8,15 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import org.ate.unisim.UniSim;
 import org.ate.unisim.main.MainScreen;
 
+/**
+ * The How to Play screen.
+ */
 public class HowToPlayScreen implements Screen {
     private final UniSim game;
 
+    /**
+     * Creates a new instance of `HowToPlayScreen`.
+     */
     public HowToPlayScreen() {
         game = UniSim.getInstance();
     }

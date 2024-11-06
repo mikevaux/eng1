@@ -1,43 +1,37 @@
 @startuml
 class Game {
-    displayUpdateMessage()
     startGame()
     pauseGame()
-    restartGame()
     exitGame()
+    handleUserInput()
+    showBuildOptions()
 }
 
-class Grid {}
-
-class GridCell {
-    isFilled()
+class Map {
+    move()
 }
 
-class Map {}
+class MapCell {
+    isBuildable()
+}
+
 
 class GameProgressionTracker {
-    displayProgression()
-    gameFinished()
+    displayCountdown()
+    gameOver()
 }
 
 class BuildingManager {
-    buildLimits
-    concurrentConstructionLimit
+    buildableLocations
+    buildingLocatable(building, row, col)
+    proposeBuilding()
+    buildBuilding()
 }
 
 abstract class Building {
     position
-    constructionTime
-    constructionTimeProgress
-    getRow()
-    getCol()
-    getConstructionTime()
-    getConstructionProgress()
-    isLocatable(row, col)
-}
-
-class Locatable << helper >> {
-    isLocatable(building, position)
+    width
+    height
 }
 
 class Graphic {
@@ -46,21 +40,10 @@ class Graphic {
     render()
 }
 
-class InputHandler {
-    listenForInput()
-}
-
-class UpdateMessage {
-    message
-    duration
-    getMessage()
-    getDuration()
-}
-
-class SettingsMenu {
+class StaticScreen {
     showSelf()
     hideSelf()
-    notifyGame()
+    handleUserInput()
 }
 
 'Extensions
@@ -69,17 +52,19 @@ Building <|-- Accommodation
 Building <|-- Restaurant
 Building <|-- Gym
 
+StaticScreen <|-- MainMenu
+StaticScreen <|-- HowToPlay
+StaticScreen <|-- GameOver
+
 'Compositions
-Game *-- Grid
+Game *-- Map
 Game *-- BuildingManager
 Game *-- GameProgressionTracker
-Game *-- SettingsMenu
+
+Building *-- Graphic
 
 'Associations
-Game "0" -- "0..*" UpdateMessage
-
-Grid "0" -- "1..*" GridCell
+Map "0" -- "1..*" MapCell
 
 BuildingManager "0" -- "1..*" Building
-Building "0" - "1" Graphic
 @enduml

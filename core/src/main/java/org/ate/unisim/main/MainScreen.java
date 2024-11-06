@@ -4,10 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
@@ -51,6 +53,7 @@ public class MainScreen implements Screen {
     Viewport uiViewport;
 
     BitmapFont font;
+    SpriteBatch batch;
 
     TiledMap map;
     TiledMapRenderer mapRenderer;
@@ -60,6 +63,8 @@ public class MainScreen implements Screen {
 
     BuildingManager buildingManager;
     GameProgressionTracker tracker;
+
+    Label remainingTimeLabel;
 
     // declare the stages for the menu ui
     Stage storeToggle;
@@ -110,17 +115,21 @@ public class MainScreen implements Screen {
 
         map = new TmxMapLoader().load("map/map.tmx");
         // unitScale is here set to 1 unit per tile, which makes cell calculations much easier
-        mapRenderer = new OrthogonalTiledMapRenderer(map, (float)1 / TILE_WIDTH);
+        mapRenderer = new OrthogonalTiledMapRenderer(map, (float) 1 / TILE_WIDTH);
         MapLayers layers = map.getLayers();
         TiledMapTileLayer bottomLayer = (TiledMapTileLayer) layers.get(0);
         tilesX = bottomLayer.getWidth();
         tilesY = bottomLayer.getHeight();
 
         uiViewport = new ScreenViewport();
+        batch = new SpriteBatch();
         font = new BitmapFont();
 
         buildingManager = new BuildingManager(map);
         tracker = new GameProgressionTracker();
+
+        remainingTimeLabel = new Label("", new Skin(new FileHandle("ui/uiskin.json")));
+        remainingTimeLabel.setPosition(10, 16);
         initStore();
     }
 
@@ -263,7 +272,7 @@ public class MainScreen implements Screen {
     /**
      * updates the labels to display the current number of each building.
      */
-    private void updateLabels(){
+    private void updateLabels() {
         accommodationNumber.setText(buildingManager.getAccommodationsBuilt() + " built");
         cafeNumber.setText(buildingManager.getCafesBuilt() + " built");
         gymNumber.setText(buildingManager.getGymsBuilt() + " built");
@@ -355,7 +364,7 @@ public class MainScreen implements Screen {
      * Handles logic, and updates accordingly
      */
     private void logic() {
-
+        remainingTimeLabel.setText("Remaining time: " + tracker.formatRemainingTime());
     }
 
     /**
@@ -369,15 +378,11 @@ public class MainScreen implements Screen {
 
         mapRenderer.setView(mapCamera);
         mapRenderer.render();
-        game.batch.setProjectionMatrix(mapCamera.combined);
-        game.batch.begin();
-        game.batch.end();
 
         uiViewport.apply();
-        game.batch.setProjectionMatrix(uiViewport.getCamera().combined);
-        game.batch.begin();
-        font.draw(game.batch, "Remaining Time:\n" + tracker.formatRemainingTime(), 5, 42);
-        game.batch.end();
+        batch.begin();
+        remainingTimeLabel.draw(batch, 1);
+        batch.end();
 
         if (buildingManager.inBuildMode()) {
             buildingManager.clearProposal();
@@ -385,7 +390,7 @@ public class MainScreen implements Screen {
         //draws the stages
         storeToggle.act(delta);
         storeToggle.draw();
-        if (showMenu){
+        if (showMenu) {
             storeOpen.act(delta);
             storeOpen.draw();
         }
@@ -394,13 +399,13 @@ public class MainScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         mapViewport.update(width, height, true);
-        mapCamera.position.set(mapCamera.viewportWidth/2,mapCamera.viewportHeight/2,0);
+        mapCamera.position.set(mapCamera.viewportWidth / 2, mapCamera.viewportHeight / 2, 0);
         mapCamera.update();
         uiViewport.update(width, height, true);
 
         //allows menu ui to function if the window is resized
-        table.setPosition(Gdx.graphics.getWidth()/2f, Gdx.graphics.getHeight()/2f);
-        toggleStoreButton.setPosition(5,Gdx.graphics.getHeight()-45f);
+        table.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
+        toggleStoreButton.setPosition(5, Gdx.graphics.getHeight() - 45f);
     }
 
     @Override

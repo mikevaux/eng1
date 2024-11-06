@@ -12,9 +12,6 @@ import org.ate.unisim.menu.MenuScreen;
  */
 public class UniSim extends Game {
     private static UniSim INSTANCE;
-    public SpriteBatch batch;
-    public BitmapFont font;
-    public FitViewport viewport;
 
     /**
      * Creates a new instance of UniSim.
@@ -38,13 +35,6 @@ public class UniSim extends Game {
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        font = new BitmapFont();
-        viewport = new FitViewport(64, 48);
-
-        font.setUseIntegerPositions(false);
-        font.getData().setScale(viewport.getWorldHeight() / Gdx.graphics.getHeight());
-
         this.setScreen(new MenuScreen());
     }
 
@@ -55,7 +45,5 @@ public class UniSim extends Game {
 
     @Override
     public void dispose() {
-        batch.dispose();
-        font.dispose();
     }
 }

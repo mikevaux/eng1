@@ -41,8 +41,13 @@ import org.ate.unisim.menu.MenuScreen;
  * The main game screen for UniSim.
  */
 public class MainScreen implements Screen {
-
+    /**
+     * The width of a tile, in pixels.
+     */
     public static final int TILE_WIDTH = 16;
+    /**
+     * The height of a tile, in pixels.
+     */
     public static final int TILE_HEIGHT = 16;
 
     private static MainScreen INSTANCE;

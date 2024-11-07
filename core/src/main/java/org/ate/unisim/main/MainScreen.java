@@ -56,7 +56,6 @@ public class MainScreen implements Screen {
     Viewport mapViewport;
     Viewport uiViewport;
 
-    BitmapFont font;
     SpriteBatch batch;
 
     TiledMap map;
@@ -115,7 +114,6 @@ public class MainScreen implements Screen {
 
         uiViewport = new ScreenViewport();
         batch = new SpriteBatch();
-        font = new BitmapFont();
 
         buildingManager = new BuildingManager(map);
         tracker = new GameProgressionTracker();
@@ -144,7 +142,7 @@ public class MainScreen implements Screen {
         skin.addRegions(buttonAtlas);
         style = new TextButton.TextButtonStyle();
         style.up = skin.getDrawable("button-c");
-        style.font = font;
+        style.font = new BitmapFont();
         style.fontColor = Color.FIREBRICK;
 
         // the button that opens and closes the store

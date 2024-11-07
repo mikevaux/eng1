@@ -5,6 +5,21 @@ package org.ate.unisim.main.buildings;
  */
 public abstract class Building {
     /**
+     * Enumeration of all possible building types. Used as a means of identifying which building an instance is.
+     */
+    public enum Types {
+        ACCOMMODATION,
+        CAFE,
+        GYM,
+        LECTURE_HALL
+    }
+
+    /**
+     * The 'type' of this building.
+     */
+    Types type;
+
+    /**
      * The number of rows this `Building` occupies on the map. (Should be a multiple of `MainScreen.TILE_WIDTH`)
      */
     int rows;
@@ -19,6 +34,10 @@ public abstract class Building {
      * e.g. "my-shiny-building.png"
      */
     String filename;
+
+    public Types getType() {
+        return type;
+    }
 
     public int getRows() {
         return rows;

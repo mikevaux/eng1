@@ -7,6 +7,7 @@ public class Gym extends Building {
     public Gym() {
         super();
 
+        type = Types.GYM;
         rows = 14;
         cols = 8;
         filename = "gym.png";

@@ -30,10 +30,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import org.ate.unisim.UniSim;
 import org.ate.unisim.gameover.GameOverScreen;
-import org.ate.unisim.main.buildings.Accommodation;
-import org.ate.unisim.main.buildings.Cafe;
-import org.ate.unisim.main.buildings.Gym;
-import org.ate.unisim.main.buildings.LectureHall;
+import org.ate.unisim.main.buildings.*;
 import org.ate.unisim.menu.MenuScreen;
 
 /**
@@ -198,7 +195,7 @@ public class MainScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if (showMenu) {
                     showMenu = false;
-                    buildingManager.enterBuildMode(new Accommodation(), "accommodation");
+                    buildingManager.enterBuildMode(new Accommodation());
                 }
 
             }
@@ -207,7 +204,7 @@ public class MainScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if (showMenu) {
                     showMenu = false;
-                    buildingManager.enterBuildMode(new Cafe(), "cafe");
+                    buildingManager.enterBuildMode(new Cafe());
                 }
             }
         });
@@ -215,7 +212,7 @@ public class MainScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if (showMenu) {
                     showMenu = false;
-                    buildingManager.enterBuildMode(new Gym(), "gym");
+                    buildingManager.enterBuildMode(new Gym());
                 }
             }
         });
@@ -223,7 +220,7 @@ public class MainScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if (showMenu) {
                     showMenu = false;
-                    buildingManager.enterBuildMode(new LectureHall(), "lecture hall");
+                    buildingManager.enterBuildMode(new LectureHall());
                 }
             }
         });
@@ -254,10 +251,10 @@ public class MainScreen implements Screen {
      * updates the labels to display the current number of each building.
      */
     private void updateLabels() {
-        accommodationNumber.setText(buildingManager.getAccommodationsBuilt() + " built");
-        cafeNumber.setText(buildingManager.getCafesBuilt() + " built");
-        gymNumber.setText(buildingManager.getGymsBuilt() + " built");
-        lectureHallNumber.setText(buildingManager.getLectureHallsBuilt() + " built");
+        accommodationNumber.setText(buildingManager.getBuildCount(Building.Types.ACCOMMODATION) + " built");
+        cafeNumber.setText(buildingManager.getBuildCount(Building.Types.CAFE) + " built");
+        gymNumber.setText(buildingManager.getBuildCount(Building.Types.GYM) + " built");
+        lectureHallNumber.setText(buildingManager.getBuildCount(Building.Types.LECTURE_HALL) + " built");
     }
 
     @Override

@@ -7,6 +7,7 @@ public class LectureHall extends Building {
     public LectureHall() {
         super();
 
+        type = Types.LECTURE_HALL;
         rows = 9;
         cols = 12;
         filename = "lecture-hall.png";

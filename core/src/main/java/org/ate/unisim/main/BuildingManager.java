@@ -9,6 +9,9 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import org.ate.unisim.main.buildings.Building;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Manages the placeable buildings, utilising 2 dynamically created layers for buildings built, and buildings proposed.
  * Specifically, `BuildingManager` creates one layer on which buildings are built, and one layer on which they are
@@ -19,10 +22,7 @@ import org.ate.unisim.main.buildings.Building;
 public class BuildingManager {
 
     // trackers for the number of each building placed
-    private int accommodationsBuilt;
-    private int cafesBuilt;
-    private int gymsBuilt;
-    private int lectureHallsBuilt;
+    private Map<Building.Types, Integer> buildCounts;
 
     private final static String TILE_PROPERTY_BUILDABLE = "buildable";
 
@@ -39,12 +39,6 @@ public class BuildingManager {
     int proposedCellX;
     int proposedCellY;
 
-    //bools used for incrementing building counter
-    boolean accommodation;
-    boolean cafe;
-    boolean gym;
-    boolean lectureHall;
-
     /**
      * Creates a new `BuildingManager`, running all bootstrap methods which this class needs.
      *
@@ -52,6 +46,7 @@ public class BuildingManager {
      */
     BuildingManager(TiledMap map) {
         this.map = map;
+        buildCounts = new HashMap<>();
         initLayers();
         compileBuildable();
     }
@@ -120,37 +115,10 @@ public class BuildingManager {
      *
      * @param building the building being proposed.
      */
-    public void enterBuildMode(Building building, String buildingName) {
+    public void enterBuildMode(Building building) {
         buildMode = true;
         beingBuilt = building;
         proposalsLayer.setVisible(true);
-        //sets the bool for the building clicked on to true and all others to false
-        switch (buildingName){
-            case "accommodation":
-                accommodation = true;
-                cafe = false;
-                gym = false;
-                lectureHall = false;
-                break;
-            case "cafe":
-                accommodation = false;
-                cafe = true;
-                gym = false;
-                lectureHall = false;
-                break;
-            case "gym":
-                accommodation = false;
-                cafe = false;
-                gym = true;
-                lectureHall = false;
-                break;
-            case "lecture hall":
-                accommodation = false;
-                cafe = false;
-                gym = false;
-                lectureHall = true;
-                break;
-        }
     }
 
     /**
@@ -235,34 +203,15 @@ public class BuildingManager {
                 buildable[proposedCellX+incX][proposedCellY+incY] = false;
             }
         }
-        //updates the building counter in the store menu once the building has been placed
-        if (accommodation){
-            accommodation = false;
-            accommodationsBuilt += 1;
-        }else if (cafe){
-            cafe = false;
-            cafesBuilt += 1;
-        }else if (gym){
-            gym = false;
-            gymsBuilt += 1;
-        }else if (lectureHall){
-            lectureHall = false;
-            lectureHallsBuilt += 1;
-        }
+        // Build counts is initialized as an empty HashMap and only added to when a building is built,
+        // so we need to check for key existence here
+        int newCount = (buildCounts.getOrDefault(beingBuilt.getType(), 0)) + 1;
+        buildCounts.put(beingBuilt.getType(), newCount);
 
         exitBuildMode();
     }
 
-    public int getAccommodationsBuilt(){
-        return accommodationsBuilt;
-    }
-    public int getCafesBuilt(){
-        return cafesBuilt;
-    }
-    public int getGymsBuilt(){
-        return gymsBuilt;
-    }
-    public int getLectureHallsBuilt(){
-        return lectureHallsBuilt;
+    public int getBuildCount(Building.Types type) {
+        return buildCounts.getOrDefault(type, 0);
     }
 }

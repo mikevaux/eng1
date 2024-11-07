@@ -7,6 +7,7 @@ public class Accommodation extends Building {
     public Accommodation() {
         super();
 
+        type = Types.ACCOMMODATION;
         rows = 12;
         cols = 12;
         filename = "accommodation.png";

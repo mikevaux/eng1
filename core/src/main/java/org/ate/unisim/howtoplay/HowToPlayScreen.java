@@ -30,10 +30,11 @@ public class HowToPlayScreen extends StaticScreen {
         Image imageFont = getImageFont("how-to-play.png");
         preserveAspectRatio(imageFont);
         String instructions = """
+            - Use the arrow keys (or wasd) to move the map.
             - Click the 'Store' in the top-left of the map to open the Store.
             - From here, click any building to build it.
             - The Store also includes a count of how many of each building has been built.
-            - If you change your mind, press Esc to cancel building.
+            - If you change your mind while placing a building, press Esc to cancel.
             - Press 'p' at any time to pause the game.
             - Enjoy!""";
         String startHint = "Press space to start the game...";

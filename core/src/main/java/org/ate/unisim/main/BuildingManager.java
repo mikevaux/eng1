@@ -9,9 +9,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import org.ate.unisim.main.buildings.Building;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Manages the placeable buildings, utilising 2 dynamically created layers for buildings built, and buildings proposed.
  * Specifically, `BuildingManager` creates one layer on which buildings are built, and one layer on which they are
@@ -48,8 +45,6 @@ public class BuildingManager {
     boolean gym;
     boolean lectureHall;
 
-    Map<String, Integer> buildLimits;
-
     /**
      * Creates a new `BuildingManager`, running all bootstrap methods which this class needs.
      *
@@ -59,8 +54,6 @@ public class BuildingManager {
         this.map = map;
         initLayers();
         compileBuildable();
-
-        buildLimits = new HashMap<>();
     }
 
     /**

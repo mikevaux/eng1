@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
@@ -84,18 +83,6 @@ public class MainScreen implements Screen {
     TextButton.TextButtonStyle style;
     Skin skin;
     TextureAtlas buttonAtlas;
-    Texture accommodationTexture;
-    TextureRegion accommodationTextureRegion;
-    TextureRegionDrawable accommodationTexRegionDrawable;
-    Texture cafeTexture;
-    TextureRegion cafeTextureRegion;
-    TextureRegionDrawable cafeTexRegionDrawable;
-    Texture gymTexture;
-    TextureRegion gymTextureRegion;
-    TextureRegionDrawable gymTexRegionDrawable;
-    Texture lectureHallTexture;
-    TextureRegion lectureHallTextureRegion;
-    TextureRegionDrawable lectureHallTexRegionDrawable;
     Label accommodationNumber;
     Label cafeNumber;
     Label gymNumber;
@@ -175,23 +162,10 @@ public class MainScreen implements Screen {
         gymNumber = new Label("0 built", skin);
         lectureHallNumber = new Label("0 built", skin);
 
-        // image buttons for each building
-        accommodationTexture = new Texture(Gdx.files.internal("buildings/accommodation.png"));
-        accommodationTextureRegion = new TextureRegion(accommodationTexture);
-        accommodationTexRegionDrawable = new TextureRegionDrawable(accommodationTextureRegion);
-        accommodationButton = new ImageButton(accommodationTexRegionDrawable);
-        cafeTexture = new Texture(Gdx.files.internal("buildings/cafe.png"));
-        cafeTextureRegion = new TextureRegion(cafeTexture);
-        cafeTexRegionDrawable = new TextureRegionDrawable(cafeTextureRegion);
-        cafeButton = new ImageButton(cafeTexRegionDrawable);
-        gymTexture = new Texture(Gdx.files.internal("buildings/gym.png"));
-        gymTextureRegion = new TextureRegion(gymTexture);
-        gymTexRegionDrawable = new TextureRegionDrawable(gymTextureRegion);
-        gymButton = new ImageButton(gymTexRegionDrawable);
-        lectureHallTexture = new Texture(Gdx.files.internal("buildings/lecture-hall.png"));
-        lectureHallTextureRegion = new TextureRegion(lectureHallTexture);
-        lectureHallTexRegionDrawable = new TextureRegionDrawable(lectureHallTextureRegion);
-        lectureHallButton = new ImageButton(lectureHallTexRegionDrawable);
+        accommodationButton = makeImageButton((new Accommodation()).getAssetPath());
+        cafeButton = makeImageButton((new Cafe()).getAssetPath());
+        gymButton = makeImageButton((new Gym()).getAssetPath());
+        lectureHallButton = makeImageButton((new LectureHall()).getAssetPath());
 
         // table storing the store ui
         table = new Table();
@@ -255,6 +229,10 @@ public class MainScreen implements Screen {
                 }
             }
         });
+    }
+
+    private ImageButton makeImageButton(String assetPath) {
+        return new ImageButton(new TextureRegionDrawable(new Texture(assetPath)));
     }
 
     /**

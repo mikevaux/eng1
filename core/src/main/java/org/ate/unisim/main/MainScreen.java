@@ -7,10 +7,12 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
@@ -145,11 +147,16 @@ public class MainScreen implements Screen {
         // the button that opens and closes the store
         toggleStoreButton = new TextButton("Toggle Store", style);
 
+        Pixmap bgPixmap = new Pixmap(1,1, Pixmap.Format.RGB565);
+        bgPixmap.setColor(Color.LIGHT_GRAY);
+        bgPixmap.fill();
+        TextureRegionDrawable bg = new TextureRegionDrawable(new TextureRegion(new Texture(bgPixmap)));
+
         // labels for the different building types
-        Label accommodationLabel = new Label("Accommodation:", skin);
-        Label cafeLabel = new Label("Cafe:", skin);
-        Label gymLabel = new Label("Gym:", skin);
-        Label lectureHallLabel = new Label("Lecture Hall:", skin);
+        Label accommodationLabel = new Label("Accommodation", skin);
+        Label cafeLabel = new Label("Cafe", skin);
+        Label gymLabel = new Label("Gym", skin);
+        Label lectureHallLabel = new Label("Lecture Hall", skin);
 
         // labels stating the number of each building type placed
         accommodationNumber = new Label("0 built", skin);
@@ -162,26 +169,31 @@ public class MainScreen implements Screen {
         gymButton = makeImageButton((new Gym()).getAssetPath());
         lectureHallButton = makeImageButton((new LectureHall()).getAssetPath());
 
+        Table root = new Table();
+        root.setFillParent(true);
+
         // table storing the store ui
-        table = new Table();
+        table = new Table().pad(24);
+        table.setBackground(bg);
         table.add(accommodationLabel);
         table.add(cafeLabel);
         table.add(gymLabel);
         table.add(lectureHallLabel);
         table.row();
-        table.add(accommodationButton);
-        table.add(cafeButton);
-        table.add(gymButton);
-        table.add(lectureHallButton);
+        table.add(accommodationButton).pad(12);
+        table.add(cafeButton).pad(12);
+        table.add(gymButton).pad(12);
+        table.add(lectureHallButton).pad(12);
         table.row();
         table.add(accommodationNumber);
         table.add(cafeNumber);
         table.add(gymNumber);
         table.add(lectureHallNumber);
 
+        root.add(table);
         //adding the store button and table to their stages
         storeToggle.addActor(toggleStoreButton);
-        storeOpen.addActor(table);
+        storeOpen.addActor(root);
 
         // click listeners for all buttons
         toggleStoreButton.addListener(new ClickListener() {
@@ -382,7 +394,6 @@ public class MainScreen implements Screen {
         uiViewport.update(width, height, true);
 
         //allows menu ui to function if the window is resized
-        table.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
         toggleStoreButton.setPosition(5, Gdx.graphics.getHeight() - 45f);
     }
 

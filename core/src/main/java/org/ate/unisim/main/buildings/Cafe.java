@@ -7,8 +7,9 @@ public class Cafe extends Building {
     public Cafe() {
         super();
 
-        rows = 12;
-        cols = 14;
+        type = Types.CAFE;
+        rows = 9;
+        cols = 11;
         filename = "cafe.png";
     }
 }

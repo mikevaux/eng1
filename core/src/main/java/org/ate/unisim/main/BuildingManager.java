@@ -178,10 +178,6 @@ public class BuildingManager {
         proposalsLayer.setCell(proposedCellX, proposedCellY, cell);
     }
 
-    public void displayImpossible() {
-        // TODO Implement this somehow
-    }
-
     /**
      * Clears the current proposal.
      */

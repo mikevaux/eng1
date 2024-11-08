@@ -288,8 +288,6 @@ public class MainScreen implements Screen {
                     // updates the labels to display current building counts
                     updateLabels();
                 }
-            } else {
-                buildingManager.displayImpossible();
             }
         }
 

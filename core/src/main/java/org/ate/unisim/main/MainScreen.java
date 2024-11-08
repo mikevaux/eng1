@@ -2,7 +2,6 @@ package org.ate.unisim.main;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
@@ -11,7 +10,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -55,8 +53,6 @@ public class MainScreen implements Screen {
     Viewport mapViewport;
     Viewport uiViewport;
 
-    SpriteBatch batch;
-
     TiledMap map;
     TiledMapRenderer mapRenderer;
 
@@ -66,28 +62,13 @@ public class MainScreen implements Screen {
     BuildingManager buildingManager;
     GameProgressionTracker tracker;
 
-    Label remainingTimeLabel;
-
-    // declare the stages for the menu ui
-    Stage storeToggle;
-    Stage storeOpen;
-
-    // declare relevant variables for ui elements (actors)
+    Stage ui;
     TextButton toggleStoreButton;
-    ImageButton accommodationButton;
-    ImageButton cafeButton;
-    ImageButton gymButton;
-    ImageButton lectureHallButton;
-    TextButton.TextButtonStyle style;
-    Skin skin;
-    TextureAtlas buttonAtlas;
+    Label remainingTimeLabel;
     Label accommodationNumber;
     Label cafeNumber;
     Label gymNumber;
     Label lectureHallNumber;
-    Table table;
-
-    InputMultiplexer mux;
 
     /**
      * Creates a new instance of MainScreen, and runs various bootstrap mechanisms.
@@ -111,39 +92,29 @@ public class MainScreen implements Screen {
         tilesY = bottomLayer.getHeight();
 
         uiViewport = new ScreenViewport();
-        batch = new SpriteBatch();
 
         buildingManager = new BuildingManager(map);
         tracker = new GameProgressionTracker();
 
-        remainingTimeLabel = new Label("", new Skin(new FileHandle("ui/uiskin.json")));
-        remainingTimeLabel.setPosition(10, 16);
-        initStore();
+        initUi();
     }
 
     /**
      * creates stages and ui elements to display the store menu and button.
      */
-    private void initStore() {
-
-        // creates the stages
-        mux = new InputMultiplexer();
-        storeToggle = new Stage(uiViewport);
-        storeOpen = new Stage(uiViewport);
-        mux.addProcessor(storeToggle);
-        mux.addProcessor(storeOpen);
+    private void initUi() {
+        ui = new Stage(uiViewport);
 
         // creates the skin used for buttons and labels
-        skin = new Skin(Gdx.files.internal("skin/clean-crispy-ui.json"));
-        buttonAtlas = new TextureAtlas(Gdx.files.internal("skin/clean-crispy-ui.atlas"));
-        skin.addRegions(buttonAtlas);
-        style = new TextButton.TextButtonStyle();
+        Skin skin = new Skin(Gdx.files.internal("skin/clean-crispy-ui.json"));
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.up = skin.getDrawable("button-c");
         style.font = new BitmapFont();
         style.fontColor = Color.FIREBRICK;
 
         // the button that opens and closes the store
         toggleStoreButton = new TextButton("Toggle Store", style);
+        remainingTimeLabel = new Label("", new Skin(new FileHandle("ui/uiskin.json")));
 
         Pixmap bgPixmap = new Pixmap(1,1, Pixmap.Format.RGB565);
         bgPixmap.setColor(Color.LIGHT_GRAY);
@@ -162,74 +133,80 @@ public class MainScreen implements Screen {
         gymNumber = new Label("0 built", skin);
         lectureHallNumber = new Label("0 built", skin);
 
-        accommodationButton = makeImageButton((new Accommodation()).getAssetPath());
-        cafeButton = makeImageButton((new Cafe()).getAssetPath());
-        gymButton = makeImageButton((new Gym()).getAssetPath());
-        lectureHallButton = makeImageButton((new LectureHall()).getAssetPath());
+        ImageButton accommodationButton = makeImageButton((new Accommodation()).getAssetPath());
+        ImageButton cafeButton = makeImageButton((new Cafe()).getAssetPath());
+        ImageButton gymButton = makeImageButton((new Gym()).getAssetPath());
+        ImageButton lectureHallButton = makeImageButton((new LectureHall()).getAssetPath());
 
         Table root = new Table();
         root.setFillParent(true);
 
         // table storing the store ui
-        table = new Table().pad(24);
-        table.setBackground(bg);
-        table.add(accommodationLabel);
-        table.add(cafeLabel);
-        table.add(gymLabel);
-        table.add(lectureHallLabel);
-        table.row();
-        table.add(accommodationButton).pad(12);
-        table.add(cafeButton).pad(12);
-        table.add(gymButton).pad(12);
-        table.add(lectureHallButton).pad(12);
-        table.row();
-        table.add(accommodationNumber);
-        table.add(cafeNumber);
-        table.add(gymNumber);
-        table.add(lectureHallNumber);
+        Table store = new Table().pad(24);
+        store.setBackground(bg);
+        store.add(accommodationLabel);
+        store.add(cafeLabel);
+        store.add(gymLabel);
+        store.add(lectureHallLabel);
+        store.row();
+        store.add(accommodationButton).pad(12);
+        store.add(cafeButton).pad(12);
+        store.add(gymButton).pad(12);
+        store.add(lectureHallButton).pad(12);
+        store.row();
+        store.add(accommodationNumber);
+        store.add(cafeNumber);
+        store.add(gymNumber);
+        store.add(lectureHallNumber);
+        store.setVisible(false);
 
-        root.add(table);
-        //adding the store button and table to their stages
-        storeToggle.addActor(toggleStoreButton);
-        storeOpen.addActor(root);
+        root.add(store);
 
-        table.setVisible(false);
+        ui.addActor(root);
+        ui.addActor(toggleStoreButton);
+        ui.addActor(remainingTimeLabel);
 
         // click listeners for all buttons
         toggleStoreButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                table.setVisible(!table.isVisible());
+                store.setVisible(!store.isVisible());
             }
         });
 
         accommodationButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                     buildingManager.enterBuildMode(new Accommodation());
-                    table.setVisible(false);
+                    store.setVisible(false);
 
             }
         });
         cafeButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                     buildingManager.enterBuildMode(new Cafe());
-                    table.setVisible(false);
+                    store.setVisible(false);
             }
         });
         gymButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                     buildingManager.enterBuildMode(new Gym());
-                    table.setVisible(false);
+                    store.setVisible(false);
             }
         });
         lectureHallButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                     buildingManager.enterBuildMode(new LectureHall());
-                    table.setVisible(false);
+                    store.setVisible(false);
             }
         });
     }
 
+    /**
+     * Centralised mechanism for the repetitive job of making a "build X" button for the store.
+     *
+     * @param assetPath the path to the graphic for this building
+     * @return the ImageButton for the respective building
+     */
     private ImageButton makeImageButton(String assetPath) {
         return new ImageButton(new TextureRegionDrawable(new Texture(assetPath)));
     }
@@ -249,7 +226,7 @@ public class MainScreen implements Screen {
     @Override
     public void show() {
         resume();
-        Gdx.input.setInputProcessor(mux);
+        Gdx.input.setInputProcessor(ui);
     }
 
     /**
@@ -361,18 +338,12 @@ public class MainScreen implements Screen {
         mapRenderer.render();
 
         uiViewport.apply();
-        batch.begin();
-        remainingTimeLabel.draw(batch, 1);
-        batch.end();
 
         if (buildingManager.inBuildMode()) {
             buildingManager.clearProposal();
         }
         //draws the stages
-        storeToggle.act(delta);
-        storeToggle.draw();
-        storeOpen.act(delta);
-        storeOpen.draw();
+        ui.draw();
     }
 
     @Override
@@ -382,8 +353,9 @@ public class MainScreen implements Screen {
         mapCamera.update();
         uiViewport.update(width, height, true);
 
-        //allows menu ui to function if the window is resized
-        toggleStoreButton.setPosition(5, Gdx.graphics.getHeight() - 45f);
+        // Reposition absolutely positioned UI elements
+        toggleStoreButton.setPosition(5, Gdx.graphics.getHeight() - 50f);
+        remainingTimeLabel.setPosition(12, 26);
     }
 
     @Override

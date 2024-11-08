@@ -38,12 +38,12 @@ public class HowToPlayScreen extends StaticScreen {
             - Press 'p' at any time to pause the game.
             - Enjoy!""";
         String startHint = "Press space to start the game...";
-        Label instructionsLabel = new Label(instructions, skin);
+        Label instructionsLabel = new Label(instructions, skin, "window");
         Label startHintLabel = new Label(startHint, skin, "window");
 
         contentTable.row().padBottom(48);
-        contentTable.add(imageFont).size(320, 320 * IMAGE_FONT_HTP_ASPECT_RATIO).left();
-        contentTable.add(logo).size(48, 48).top().right();
+        contentTable.add(imageFont).size(380, 380 * IMAGE_FONT_HTP_ASPECT_RATIO).left();
+        contentTable.add(logo).size(64, 64).top().right();
         contentTable.row();
         contentTable.add(instructionsLabel).colspan(2);
         contentTable.row().padTop(24);

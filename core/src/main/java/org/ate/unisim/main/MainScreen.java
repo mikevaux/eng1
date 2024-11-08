@@ -114,7 +114,7 @@ public class MainScreen implements Screen {
 
         // the button that opens and closes the store
         toggleStoreButton = new TextButton("Toggle Store", style);
-        remainingTimeLabel = new Label("", new Skin(new FileHandle("ui/uiskin.json")));
+        remainingTimeLabel = new Label("", new Skin(new FileHandle("ui/uiskin.json")), "window");
 
         Pixmap bgPixmap = new Pixmap(1,1, Pixmap.Format.RGB565);
         bgPixmap.setColor(Color.LIGHT_GRAY);

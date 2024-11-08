@@ -2,7 +2,6 @@ package org.ate.unisim;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -47,7 +46,7 @@ abstract public class StaticScreen implements Screen {
         stage.getViewport().apply();
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(new FileHandle("ui/uiskin.json"));
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
         rootTable = new Table();
         rootTable.pad(32);

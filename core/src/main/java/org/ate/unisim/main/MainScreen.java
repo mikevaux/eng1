@@ -3,7 +3,6 @@ package org.ate.unisim.main;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -113,7 +112,7 @@ public class MainScreen implements Screen {
 
         // the button that opens and closes the store
         toggleStoreButton = new TextButton("Toggle Store", style);
-        remainingTimeLabel = new Label("", new Skin(new FileHandle("ui/uiskin.json")), "window");
+        remainingTimeLabel = new Label("", new Skin(Gdx.files.internal("ui/uiskin.json")), "window");
 
         Pixmap bgPixmap = new Pixmap(1,1, Pixmap.Format.RGB565);
         bgPixmap.setColor(Color.LIGHT_GRAY);

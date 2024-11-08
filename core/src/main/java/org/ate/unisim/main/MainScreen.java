@@ -87,8 +87,7 @@ public class MainScreen implements Screen {
     Label lectureHallNumber;
     Table table;
 
-    // bool storing if the menu is currently showing
-    boolean showMenu = false;
+    InputMultiplexer mux;
 
     /**
      * Creates a new instance of MainScreen, and runs various bootstrap mechanisms.
@@ -128,12 +127,11 @@ public class MainScreen implements Screen {
     private void initStore() {
 
         // creates the stages
-        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        mux = new InputMultiplexer();
         storeToggle = new Stage(uiViewport);
         storeOpen = new Stage(uiViewport);
-        inputMultiplexer.addProcessor(storeToggle);
-        inputMultiplexer.addProcessor(storeOpen);
-        Gdx.input.setInputProcessor(inputMultiplexer);
+        mux.addProcessor(storeToggle);
+        mux.addProcessor(storeOpen);
 
         // creates the skin used for buttons and labels
         skin = new Skin(Gdx.files.internal("skin/clean-crispy-ui.json"));
@@ -195,45 +193,39 @@ public class MainScreen implements Screen {
         storeToggle.addActor(toggleStoreButton);
         storeOpen.addActor(root);
 
+        table.setVisible(false);
+
         // click listeners for all buttons
         toggleStoreButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                showMenu = !showMenu;
+                table.setVisible(!table.isVisible());
             }
         });
 
         accommodationButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                if (showMenu) {
-                    showMenu = false;
                     buildingManager.enterBuildMode(new Accommodation());
-                }
+                    table.setVisible(false);
 
             }
         });
         cafeButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                if (showMenu) {
-                    showMenu = false;
                     buildingManager.enterBuildMode(new Cafe());
-                }
+                    table.setVisible(false);
             }
         });
         gymButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                if (showMenu) {
-                    showMenu = false;
                     buildingManager.enterBuildMode(new Gym());
-                }
+                    table.setVisible(false);
             }
         });
         lectureHallButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                if (showMenu) {
-                    showMenu = false;
                     buildingManager.enterBuildMode(new LectureHall());
-                }
+                    table.setVisible(false);
             }
         });
     }
@@ -257,6 +249,7 @@ public class MainScreen implements Screen {
     @Override
     public void show() {
         resume();
+        Gdx.input.setInputProcessor(mux);
     }
 
     /**
@@ -363,9 +356,7 @@ public class MainScreen implements Screen {
     private void draw(float delta) {
         ScreenUtils.clear(Color.BLACK);
 
-
         mapViewport.apply();
-
         mapRenderer.setView(mapCamera);
         mapRenderer.render();
 
@@ -380,10 +371,8 @@ public class MainScreen implements Screen {
         //draws the stages
         storeToggle.act(delta);
         storeToggle.draw();
-        if (showMenu) {
-            storeOpen.act(delta);
-            storeOpen.draw();
-        }
+        storeOpen.act(delta);
+        storeOpen.draw();
     }
 
     @Override
